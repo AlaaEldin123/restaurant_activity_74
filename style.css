@@ -409,3 +409,18 @@ body {
 .estimated-delivery i {
   color: #28a745;
 }
+
+.sidebar{
+  min-height: 100vh;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  
+}
+
+.dasbhoard-section{
+animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
