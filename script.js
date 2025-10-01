@@ -1,16 +1,17 @@
-class CardManager {
+class CartManager {
   constructor() {
-    this.cards = this.loadCards();
+    this.cards = this.loadCartItems();
     this.currentUser = this.getCurrentUser();
   }
 
-  loadCardItems() {
-    const cards = localStorage.getItem("restaurant-cards");
-    return cards ? JSON.parse(cards) : [];
+  loadCartItems() {
+    const items = localStorage.getItem("restaurant-cart");
+    return items ? JSON.parse(items) : [];
   }
 
-  saveCardItems() {
-    localStorage.setItem("restaurant-cards", JSON.stringify(this.cards));
+  saveCartItems() {
+    localStorage.setItem("restaurant-cart", JSON.stringify(this.items));
+    this.updateCartBadge();
   }
 
   getCurrentUser() {
@@ -33,8 +34,21 @@ class CardManager {
         addedAt: new Date().toISOString(),
       });
     }
-    this.saveCardItems();
+    this.saveCartItems();
     this.showAddToCartAnimation(product);
+    this.refreshCartDisplay();
+    return true;
+  }
+
+  removeItem(productId) {
+    const item = this.items.find((item) => item.id === productId);
+    this.items = this.items.filter((item) => item.id !== productId);
+    this.saveCartItems();
+    if (item) {
+      this.showCartNotification(`${item.name} removed from cart!`, "danger");
+    }
+
+    this.refreshCartDisplay();
     return true;
   }
 
@@ -102,17 +116,24 @@ class CardManager {
     }, 3000);
   }
 
+  refreshCartDisplay() {
+    this.displayCartItems();
+    if (typeof updatedCartStats === "function") {
+      updatedCartStats();
+    }
+  }
+
+
+
+
   showAddToCartAnimation(product) {
     this.showCartNotification(
       `${product.name} added to cart`,
-
       "success",
       "fas fa-shopping-cart"
     );
   }
 }
-
-const cardManager = new CardManager();
 
 function addCard(ProductElement) {
   const productCard = (productCard = ProductElement.closest(".product-card"));
@@ -206,6 +227,34 @@ function showFilterMessage(filter, productItems) {
     menuSection.appendChild(message);
   }
 }
+
+
+function proceedToCheckout(){
+
+  const currentUser = cardManager.getCurrentUser();
+  if(currentUser){
+    window.location.href = "customer-dashboard.html";
+  }else{
+    alert("Please login to proceed to checkout");
+    window.location.href = "login.html";
+  }
+
+
+
+
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  initializerCartBadge();
+  document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
+    button.addEventListener("click", function (e) {
+      e.preventDefault();
+      addCard(this);
+    });
+  });
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   setTimeout(() => {
